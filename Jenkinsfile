@@ -6,7 +6,7 @@ pipeline {
     IMAGE_NAME = "ic-webapp"
     IMAGE_TAG = "latest"
     DOCKERHUB_ID = "mnberthe"
-    DOCKERHUB_PASSWORD = credentials('dockerhub_password')
+    DOCKERHUB_CREDENTIALS_PSW = credentials('dockerhub_password')
     APP_CONTAINER_PORT = "8080"
     APP_EXPOSED_PORT = "9090"
     HOST_IP = "15.188.105.8"
@@ -59,7 +59,7 @@ pipeline {
         steps {
           script {
             sh '''
-                docker login -u $DOCKERHUB_ID  -p $DOCKERHUB_PASSWORD  --password-stdin
+                echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_ID --password-stdin
                 docker push ${DOCKERHUB_ID}/$IMAGE_NAME:$IMAGE_TAG
             '''
           }
