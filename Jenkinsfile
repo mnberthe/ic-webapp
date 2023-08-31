@@ -9,6 +9,7 @@ pipeline {
     DOCKERHUB_PASSWORD = credentials('dockerhub_password')
     APP_CONTAINER_PORT = "8080"
     APP_EXPOSED_PORT = "9090"
+    HOST_IP = "15.188.105.8"
   }
   agent any
     stages {
@@ -21,7 +22,6 @@ pipeline {
       }
 
       stage('Run container based on builded image') {  
-        agent any
         steps {
           script {
             sh '''
@@ -33,6 +33,16 @@ pipeline {
           }
         }
       }
+
+      stage('Test image') {
+           steps {
+              script {
+                sh '''
+                   curl -I http://${HOST_IP}:${APP_EXPOSED_PORT} | grep -i "200"
+                '''
+              }
+           }
+       }
     
   }
 }
