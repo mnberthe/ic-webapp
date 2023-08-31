@@ -1,25 +1,39 @@
 pipeline {
- environment {
-    IMAGE_NAME="ic-webapp"
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '3', artifactNumToKeepStr: '3'))
+  }
+  environment {
+    IMAGE_NAME = "ic-webapp"
     IMAGE_TAG = "latest"
-    STAGING = "ic-webapp-mb-staging"
-    PRODUCTION="ic-webapp-mb-prod"
+    APP_CONTAINER_PORT = "8080"
     DOCKERHUB_ID = "mnberthe"
-    INTERNAL_PORT = "8080"
-    EXTERNAL_PORT = "9090"
-    CONTAINER_IMAGE = "${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
-    ODOO_URL= "https://www.odoo.com/"
-    PGADMIN_URL= "https://www.pgadmin.org/"
- }
- agent any
-  stages {
-    stage('Build image'){
-      agent any
-      steps {
-        script {
-          sh 'docker build -t $DOCKERHUB_ID/$IMAGE_NAME:$IMAGE_TAG -f app/Dockerfile .'
+    DOCKERHUB_PASSWORD = credentials('dockerhub_password')
+    APP_CONTAINER_PORT = "8080"
+    APP_EXPOSED_PORT = "9090"
+  }
+  agent any
+    stages {
+      stage('Build image'){
+        steps {
+          script {
+            sh 'docker build -t $DOCKERHUB_ID/$IMAGE_NAME:$IMAGE_TAG -f app/Dockerfile .'
+          }
         }
       }
-    }
+
+      stage('Run container based on builded image') {  
+        agent any
+        steps {
+          script {
+            sh '''
+                echo "Cleaning existing container if exist"
+                docker ps -a | grep -i $IMAGE_NAME && docker rm -f $IMAGE_NAME
+                docker run  --name $IMAGE_NAME  -d -p $APP_EXPOSED_PORT:$APP_CONTAINER_PORT ${DOCKERHUB_ID}/$IMAGE_NAME:$IMAGE_TAG
+                sleep 5
+            '''
+          }
+        }
+      }
+    
   }
 }
