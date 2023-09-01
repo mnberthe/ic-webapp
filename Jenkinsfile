@@ -65,8 +65,8 @@ pipeline {
           }
         }
       }
-      
-      stage ('Build EC2 on AWS with terraform') {
+
+      stage ('Build EC2 on Dev ') {
         agent { 
             docker { 
                     image 'jenkins/jnlp-agent-terraform'  
@@ -77,13 +77,42 @@ pipeline {
           AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
           AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         } 
+        when {
+            branch 'dev'
+        }
         steps {
           script {
             sh ''' 
                cd "./terraform"
                terraform init -no-color 
-               terraform plan -no-color
-               terraform apply --auto-approve
+               terraform plan -no-color  -var-file="dev.tfvars"
+               terraform apply --auto-approve -var-file="dev.tfvars"
+            '''
+          }
+        }
+      }
+
+      stage ('Build EC2 on Prod ') {
+        agent { 
+            docker { 
+                    image 'jenkins/jnlp-agent-terraform'  
+            } 
+        }
+        environment {
+          TF_IN_AUTOMATION = 'true'
+          AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+          AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        } 
+        when {
+            branch 'master'
+        }
+        steps {
+          script {
+            sh ''' 
+               cd "./terraform"
+               terraform init -no-color 
+               terraform plan -no-color  -var-file="prod.tfvars"
+               terraform apply --auto-approve -var-file="prod.tfvars"
             '''
           }
         }
@@ -97,7 +126,26 @@ pipeline {
         steps {
           echo 'Destroy Approved'
         }
-    }
+      }
+
+      stage('Destroy'){
+        when {
+            beforeInput true
+            branch 'dev'
+        }
+        steps {
+             sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
+        }
+      }
+      stage('Destroy'){
+        when {
+            beforeInput true
+            branch 'master'
+        }
+        steps {
+             sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
+        }
+      }
     
   }
 }
