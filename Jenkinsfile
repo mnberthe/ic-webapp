@@ -65,6 +65,7 @@ pipeline {
           }
         }
       }
+      
       stage ('Build EC2 on AWS with terraform') {
         agent { 
             docker { 
@@ -72,6 +73,7 @@ pipeline {
             } 
         }
         environment {
+          TF_IN_AUTOMATION = 'true'
           AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
           AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         } 
@@ -79,12 +81,23 @@ pipeline {
           script {
             sh ''' 
                cd "./terraform"
-               terraform init 
-               terraform plan
+               terraform init -no-color 
+               terraform plan -no-color
+               terraform apply --auto-approve
             '''
           }
         }
       }
+
+      stage('Validate Destroy') {
+        input {
+          message "Do you want to destroy?"
+          ok "Destroy"
+        }
+        steps {
+          echo 'Destroy Approved'
+        }
+    }
     
   }
 }
