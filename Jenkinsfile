@@ -10,6 +10,10 @@ pipeline {
     APP_CONTAINER_PORT = "8080"
     APP_EXPOSED_PORT = "9090"
     HOST_IP = "15.188.105.8"
+
+    TF_IN_AUTOMATION = 'true'
+    AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
   agent any
     stages {
@@ -72,11 +76,6 @@ pipeline {
                     image 'jenkins/jnlp-agent-terraform'  
             } 
         }
-        environment {
-          TF_IN_AUTOMATION = 'true'
-          AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-          AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        } 
         when {
             branch 'dev'
         }
@@ -98,11 +97,6 @@ pipeline {
                     image 'jenkins/jnlp-agent-terraform'  
             } 
         }
-        environment {
-          TF_IN_AUTOMATION = 'true'
-          AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-          AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        } 
         when {
             branch 'master'
         }
@@ -129,6 +123,11 @@ pipeline {
       }
 
       stage('Destroy'){
+          agent { 
+            docker { 
+                    image 'jenkins/jnlp-agent-terraform'  
+            } 
+        }
         steps {
            script {
               if (env.BRANCH_NAME == 'dev') {
