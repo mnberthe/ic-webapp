@@ -133,7 +133,7 @@ pipeline {
            script {
               if (env.BRANCH_NAME == 'dev') {
                   sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
-              } else if (env.BRANCH_NAME == 'prod'){
+              } else if (env.BRANCH_NAME == 'master'){
                   sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
               } else {
                    echo 'no env found'
