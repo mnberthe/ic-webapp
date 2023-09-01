@@ -131,8 +131,8 @@ pipeline {
         steps {
            script {
              dir("terraform") {
-                sh "pwd"
-              }      
+                sh 'pwd'
+                sh 'ls'
               if (env.BRANCH_NAME == 'dev') {
                   sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
               } else if (env.BRANCH_NAME == 'master'){
@@ -140,6 +140,7 @@ pipeline {
               } else {
                    echo 'no env found'
               }
+              }      
            }
         }
       }
