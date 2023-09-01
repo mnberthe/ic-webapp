@@ -130,6 +130,7 @@ pipeline {
         }
         steps {
            script {
+              sh 'cd "./terraform"'
               if (env.BRANCH_NAME == 'dev') {
                   sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
               } else if (env.BRANCH_NAME == 'master'){
