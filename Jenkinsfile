@@ -58,12 +58,33 @@ pipeline {
       stage ('Login and Push Image on docker hub') {
         steps {
           script {
-            sh 'docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'
-            sh 'docker push ${DOCKERHUB_ID}/$IMAGE_NAME:$IMAGE_TAG'
-            
+            sh ''' 
+                docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'
+                docker push ${DOCKERHUB_ID}/$IMAGE_NAME:$IMAGE_TAG
+            '''
           }
         }
-    }
+      }
+      stage ('Build EC2 on AWS with terraform') {
+        agent { 
+            docker { 
+                    image 'hashicorp/terraform:latest'  
+            } 
+        }
+        environment {
+          AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+          AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        } 
+        steps {
+          script {
+            sh ''' 
+               cd "./terraform"
+               terraform init 
+               terraform plan
+            '''
+          }
+        }
+      }
     
   }
 }
