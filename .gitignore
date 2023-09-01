@@ -1,5 +1,5 @@
 .history
-
+ec2-key
 # misc
 *.pem
 # Local .terraform directories

@@ -17,3 +17,27 @@ variable "jenkins_ip" {
   type    = string
   default = "15.188.105.8/32"
 }
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "vol_size" {
+  type    = number
+  default = 8
+}
+
+variable "instance_count" {
+  type    = number
+  default = 2
+}
+
+variable "key_name" {
+  type = string
+}
+
+
+variable "public_key_path" {
+  type = string
+}
