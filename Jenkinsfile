@@ -68,7 +68,7 @@ pipeline {
       stage ('Build EC2 on AWS with terraform') {
         agent { 
             docker { 
-                    image 'hashicorp/terraform:latest'  
+                    image 'jenkins/jnlp-agent-terraform'  
             } 
         }
         environment {
