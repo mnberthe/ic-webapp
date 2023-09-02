@@ -102,6 +102,15 @@ pipeline {
         }
       }
 
+      stage('Ec2 wait'){
+        steps {
+            sh '''aws ec2 wait instance-status-ok \\
+              --instance-ids $(terraform output -json instance_ids | jq -r \'.[]\') \\
+              --region eu-west-3
+              '''
+        }
+      }
+
       stage('Validate Destroy') {
         input {
           message "Do you want to destroy?"
@@ -112,12 +121,16 @@ pipeline {
         }
       }
 
-      stage('Ec2 wait'){
+      stage ("DEV - Ping target hosts") {
+        environment {            
+          PRIVATE_AWS_KEY = credentials('private-key')
+        }
         steps {
-            sh '''aws ec2 wait instance-status-ok \\
-              --instance-ids $(terraform output -json instance_ids | jq -r \'.[]\') \\
-              --region eu-west-3
-              '''
+            script {
+                sh '''
+                    ansible all -m ping  --private-key  $PRIVATE_AWS_KEY 
+                '''
+            }
         }
       }
 
