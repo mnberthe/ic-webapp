@@ -130,7 +130,6 @@ pipeline {
               script {
                   sh '''
                       cd "./ansible"
-                      ls 
                       ansible-playbook -i inventory playbooks/install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
@@ -152,7 +151,6 @@ pipeline {
           script {
             dir("terraform") {
               sh 'pwd'
-              sh 'ls'
             if (env.BRANCH_NAME == 'dev') {
                 sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
             } else if (env.BRANCH_NAME == 'master'){
