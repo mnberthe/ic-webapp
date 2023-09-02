@@ -113,7 +113,7 @@ pipeline {
 
     stage ("Ansible - Ping target hosts") {
         environment {    
-          ANSIBLE_HOST_KEY_CHECKING=False        
+          ANSIBLE_HOST_KEY_CHECKING="False"       
           PRIVATE_AWS_KEY = credentials('private-key')
         }
         steps {
