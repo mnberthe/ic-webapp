@@ -34,7 +34,7 @@ resource "local_file" "ansible_inventory" {
     ic_webapp_server_ipv4 ="${aws_instance.ec2[1].public_ip}"
     pg_admin_server_ipv4 ="${aws_instance.ec2[1].public_ip}"
   })
-  filename = "../ansible/inventory"
+  filename = "ansible/inventory"
 }
 
 output "instance_ips" {

@@ -126,8 +126,7 @@ pipeline {
           steps {
               script {
                   sh '''
-                      cd "./ansible"
-                      ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
+                      ansible -i ansible/inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
@@ -137,8 +136,7 @@ pipeline {
           steps {
               script {
                   sh '''
-                      cd "./ansible"
-                      ansible-playbook -i inventory playbooks/install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
+                      ansible-playbook -i ansible/inventory ansible/playbooks/install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
@@ -149,7 +147,7 @@ pipeline {
               script {
                   sh '''
                       cd "./ansible"
-                      ansible-playbook -i inventory playbooks/deploy-pgadmin.yml  --private-key  $PRIVATE_AWS_KEY 
+                      ansible-playbook -i ansible/inventory ansible/playbooks/deploy-pgadmin.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
@@ -160,7 +158,7 @@ pipeline {
               script {
                   sh '''
                       cd "./ansible"
-                      ansible-playbook -i inventory playbooks/deploy-icwebapp.yml  --private-key  $PRIVATE_AWS_KEY 
+                      ansible-playbook -i ansible/inventory ansible/playbooks/deploy-icwebapp.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
