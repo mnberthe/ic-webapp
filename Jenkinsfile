@@ -108,6 +108,7 @@ pipeline {
       stage('Setup Ansible vars'){
          steps {
               sh '''
+                cd "./terraform"
                 echo $(terraform output -json instance_ips) | awk -F'"' '{print $2}' > aws_hosts
                 cat aws_hosts
 
