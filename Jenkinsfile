@@ -114,12 +114,20 @@ pipeline {
         }
       }
 
+      stage('Setup Ansible vars'){
+         steps {
+            sh '''
+              echo "host_pgadmin_ip : $(terraform output -json instance_ips | jq -r \'.[1]\')" >> ansible/roles/ic-webapp/defaults/main.yml
+              echo "host_odoo_ip : $(terraform output -json instance_ips | jq -r \'.[0]')" >> ansible/roles/ic-webapp/defaults/main.yml
+              '''
+        }
+      }
+
       stage ("Ansible - Ping target hosts") {
           steps {
               script {
                   sh '''
                       cd "./ansible"
-                      cat inventory
                       ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
@@ -137,7 +145,7 @@ pipeline {
           }
       }
       
-      stage ("Ansible - Deploy PgAdmin ") {
+    stage ("Ansible - Deploy PgAdmin ") {
           steps {
               script {
                   sh '''
@@ -146,7 +154,18 @@ pipeline {
                   '''
               }
           }
-      }
+    }
+
+    stage ("Ansible - Deploy ic-wepapp ") {
+          steps {
+              script {
+                  sh '''
+                      cd "./ansible"
+                      ansible-playbook -i inventory playbooks/deploy-icwebapp.yml  --private-key  $PRIVATE_AWS_KEY 
+                  '''
+              }
+          }
+    }
 
     stage('Validate Destroy') {
       input {
