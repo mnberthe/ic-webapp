@@ -110,6 +110,10 @@ pipeline {
               sh '''
                 echo $(terraform output -json instance_ips) | awk -F'"' '{print $2}' > aws_hosts
                 cat aws_hosts
+
+                echo "host_pgadmin_ip : $(terraform output -json instance_ips | jq -r '.[1]')" >> ansible/roles/ic-webapp/defaults/main.yml
+                echo "host_odoo_ip : $(terraform output -json instance_ips | jq -r '.[0]')" >> ansible/roles/ic-webapp/defaults/main.yml
+                cat ansible/roles/ic-webapp/defaults/main.yml
             '''
         }
       }
