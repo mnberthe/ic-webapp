@@ -3,7 +3,7 @@ services:
     {{ postgres_service_name }}:
         environment:
             - POSTGRES_USER=odoo_user
-            - POSTGRES_PASSWORD=password
+            - POSTGRES_PASSWORD=odoo_password
             - POSTGRES_DB=postgres
         networks:
             - {{ odoo_network }}
@@ -27,7 +27,7 @@ services:
             - '{{ odoo_web_data_volume }}:/var/lib/odoo'
         environment:
             - USER=odoo_user
-            - PASSWORD=password
+            - PASSWORD=odoo_password
             - HOST=postgres
         image: odoo:13.0
 volumes:
