@@ -16,7 +16,7 @@ pipeline {
     AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
   agent any
-    stages {
+  stages {
       stage('Build image'){
         steps {
           script {
@@ -39,14 +39,14 @@ pipeline {
       }
 
       stage('Test image') {
-           steps {
+            steps {
               script {
                 sh '''
-                   curl -I http://${HOST_IP}:${APP_EXPOSED_PORT} | grep -i "200"
+                    curl -I http://${HOST_IP}:${APP_EXPOSED_PORT} | grep -i "200"
                 '''
               }
-           }
-       }
+            }
+        }
 
       stage('Clean container') {
         steps {
@@ -57,7 +57,7 @@ pipeline {
             '''
           }
         }
-     }
+      }
 
       stage ('Login and Push Image on docker hub') {
         steps {
@@ -71,42 +71,32 @@ pipeline {
       }
 
       stage ('Build EC2 on Dev ') {
-        agent { 
-            docker { 
-                    image 'jenkins/jnlp-agent-terraform'  
-            } 
-        }
         when {
             branch 'dev'
         }
         steps {
           script {
             sh ''' 
-               cd "./terraform"
-               terraform init -no-color 
-               terraform plan -no-color  -var-file="dev.tfvars"
-               terraform apply --auto-approve -var-file="dev.tfvars"
+                cd "./terraform"
+                terraform init -no-color 
+                terraform plan -no-color  -var-file="dev.tfvars"
+                terraform apply --auto-approve -var-file="dev.tfvars"
             '''
           }
         }
       }
 
       stage ('Build EC2 on Prod ') {
-        agent { 
-            docker { 
-                    image 'jenkins/jnlp-agent-terraform'  
-            } 
-        }
         when {
             branch 'master'
         }
         steps {
           script {
             sh ''' 
-               cd "./terraform"
-               terraform init -no-color 
-               terraform plan -no-color  -var-file="prod.tfvars"
-               terraform apply --auto-approve -var-file="prod.tfvars"
+                cd "./terraform"
+                terraform init -no-color 
+                terraform plan -no-color  -var-file="prod.tfvars"
+                terraform apply --auto-approve -var-file="prod.tfvars"
             '''
           }
         }
@@ -122,15 +112,19 @@ pipeline {
         }
       }
 
-      stage('Destroy'){
-          agent { 
-            docker { 
-                    image 'jenkins/jnlp-agent-terraform'  
-            } 
-        }
+      stage('Ec2 wait'){
         steps {
-           script {
-             dir("terraform") {
+            sh '''aws ec2 wait instance-status-ok \\
+              --instance-ids $(terraform output -json instance_ids | jq -r \'.[]\') \\
+              --region eu-west-3
+              '''
+        }
+      }
+
+      stage('Destroy'){
+        steps {
+            script {
+              dir("terraform") {
                 sh 'pwd'
                 sh 'ls'
               if (env.BRANCH_NAME == 'dev') {
@@ -138,10 +132,10 @@ pipeline {
               } else if (env.BRANCH_NAME == 'master'){
                   sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
               } else {
-                   echo 'no env found'
+                    echo 'no env found'
               }
               }      
-           }
+            }
         }
       }
     

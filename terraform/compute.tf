@@ -27,3 +27,11 @@ resource "aws_instance" "ec2" {
     Name = "ec2-instance-${count.index + 1}"
   }
 }
+
+output "instance_ips" {
+  value = [for i in aws_instance.ec2[*]: i.public_ip]
+}
+
+output "instance_ids" {
+  value = [for i in aws_instance.ec2[*]: i.id]
+}
