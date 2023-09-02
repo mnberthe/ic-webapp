@@ -2,8 +2,6 @@
 ---
 - name: Update apt cache
   apt: update_cache=yes cache_valid_time=3600
-- name: Upgrade all apt packages
-    apt: upgrade=dist
 - name: Install dependencies
   apt:
     name: "{{ packages }}"
@@ -26,6 +24,9 @@
   apt_repository:
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
     state: present
+
+- name: Wait for /var/lib/dpkg/lock-frontend to be released 
+  shell: while lsof /var/lib/dpkg/lock-frontend ; do sleep 10; done;
 
 - name: Install Docker
   apt:
