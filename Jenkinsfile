@@ -117,8 +117,9 @@ pipeline {
       stage('Setup Ansible vars'){
          steps {
             sh '''
-              echo "host_pgadmin_ip : $(terraform output -json instance_ips | jq -r \'.[1]\')" >> ansible/roles/ic-webapp/defaults/main.yml
-              echo "host_odoo_ip : $(terraform output -json instance_ips | jq -r \'.[0]')" >> ansible/roles/ic-webapp/defaults/main.yml
+              data: $(terraform output -json instance_ips | jq -r \'.[1]\') 
+              host_pgadmin_ip : $(terraform output -json instance_ips | jq -r \'.[1]\') >> ansible/roles/ic-webapp/defaults/main.yml
+              host_odoo_ip : $(terraform output -json instance_ips | jq -r \'.[0]') >> ansible/roles/ic-webapp/defaults/main.yml
               '''
         }
       }
@@ -179,20 +180,31 @@ pipeline {
 
     stage('Destroy'){
       steps {
-          script {
+        script {
             dir("terraform") {
-              sh 'pwd'
-            if (env.BRANCH_NAME == 'dev') {
-                sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
-            } else if (env.BRANCH_NAME == 'master'){
-                sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
-            } else {
-                  echo 'no env found'
-            }
+                if (env.BRANCH_NAME == 'dev') {
+                    sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
+                } else if (env.BRANCH_NAME == 'master'){
+                    sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
+                } else {
+                      echo 'no env found'
+                }
             }      
           }
-      }
+        }
     }
     
+  }
+
+  post{
+      success {
+        echo 'Success!'
+      }
+      failure {
+        echo 'Failure!'
+      }
+      aborted{
+         echo 'aborted!'
+      }
   }
 }
