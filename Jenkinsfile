@@ -111,6 +111,20 @@ pipeline {
         }
       }
 
+    stage ("Ansible - Ping target hosts") {
+        environment {            
+          PRIVATE_AWS_KEY = credentials('private-key')
+        }
+        steps {
+            script {
+                sh '''
+                    cd "./ansible"
+                    ansible all -m ping  --private-key  $PRIVATE_AWS_KEY 
+                '''
+            }
+        }
+      }
+      
       stage('Validate Destroy') {
         input {
           message "Do you want to destroy?"
@@ -118,19 +132,6 @@ pipeline {
         }
         steps {
           echo 'Destroy Approved'
-        }
-      }
-
-      stage ("DEV - Ping target hosts") {
-        environment {            
-          PRIVATE_AWS_KEY = credentials('private-key')
-        }
-        steps {
-            script {
-                sh '''
-                    ansible all -m ping  --private-key  $PRIVATE_AWS_KEY 
-                '''
-            }
         }
       }
 
