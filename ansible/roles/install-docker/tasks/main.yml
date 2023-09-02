@@ -2,42 +2,34 @@
 # tasks file for install-docker
 
 - name: Update apt cache
-  apt: update_cache=yes cache_valid_time=3600
-
-- name: Upgrade all apt packages
-  apt: upgrade=dist
-
-
-- name: Install dependencies
-  apt:
-    name: "{{ packages }}"
-    state: present
+  ansible.builtin.apt:
     update_cache: yes
-  vars:
-    packages:
-    - apt-transport-https
-    - ca-certificates
-    - curl
-    - software-properties-common
-    - gnupg-agent
 
-- name: Add an apt signing key for Docker
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "ca-certificates" 
+    - "curl"
+    - "gnupg"
 
-- name: Add apt repository for stable version
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
-    state: present
+- name:  Add an apt signing key for Docker
+  ansible.builtin.apt_key:
+    url:  https://download.docker.com/linux/ubuntu/gpg
+    state: absent
 
-- name: Install Docker
-  apt:
-    name: "{{ packages }}"
-    state: present
+- name: Add docker to repository
+  ansible.builtin.apt_repository: 
+    repo: deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    state: absent
+
+- name : install docker
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
     update_cache: yes
-  vars:
-    packages:
-    - docker-ce
-    - docker-ce-cli 
-    - containerd.io
+  loop:
+    - "docker-ce"
+    - "docker-ce-cli"
+    - "containerd.io"
