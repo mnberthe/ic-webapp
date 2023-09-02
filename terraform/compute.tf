@@ -32,8 +32,8 @@ resource "local_file" "ansible_inventory" {
   count = var.instance_count
   content = templatefile("inventory.tftpl", {
     odoo_ipv4  = "${aws_instance.ec2[count.index].public_ip}"
-    ic_webapp_server ="${aws_instance.ec2[count.index+1].public_ip}"
-    ansible_host ="${aws_instance.ec2[count.index+1].public_ip}"
+    ic_webapp_server_ipv4 ="${aws_instance.ec2[count.index+1].public_ip}"
+    pg_admin_server_ipv4 ="${aws_instance.ec2[count.index+1].public_ip}"
   })
   filename = "../ansible/inventory"
 }
