@@ -162,6 +162,16 @@ pipeline {
           }
     }
 
+    stage ("Ansible - Deploy odoo ") {
+          steps {
+              script {
+                  sh '''
+                      ansible-playbook -i ansible/inventory ansible/playbooks/deploy-odoo.yml  --private-key  $PRIVATE_AWS_KEY 
+                  '''
+              }
+          }
+    }
+
     stage('Validate Destroy') {
       input {
         message "Do you want to destroy?"
