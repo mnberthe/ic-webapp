@@ -119,6 +119,7 @@ pipeline {
               script {
                   sh '''
                       cd "./ansible"
+                      cat inventory
                       ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
@@ -136,6 +137,17 @@ pipeline {
           }
       }
       
+      stage ("Ansible - Deploy PgAdmin ") {
+          steps {
+              script {
+                  sh '''
+                      cd "./ansible"
+                      ansible-playbook -i inventory playbooks/deploy-pgadmin  --private-key  $PRIVATE_AWS_KEY 
+                  '''
+              }
+          }
+      }
+
     stage('Validate Destroy') {
       input {
         message "Do you want to destroy?"

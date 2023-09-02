@@ -1,0 +1,6 @@
+---
+- hosts: pg_admin
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: 'roles/pgadmin'
