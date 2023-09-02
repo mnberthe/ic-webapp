@@ -80,7 +80,6 @@ pipeline {
         steps {
           script {
             sh ''' 
-                cd "./terraform"
                 terraform init -no-color 
                 terraform plan -no-color  -var-file="dev.tfvars"
                 terraform apply --auto-approve -var-file="dev.tfvars"
@@ -96,7 +95,6 @@ pipeline {
         steps {
           script {
             sh ''' 
-                cd "./terraform"
                 terraform init -no-color 
                 terraform plan -no-color  -var-file="prod.tfvars"
                 terraform apply --auto-approve -var-file="prod.tfvars"
@@ -108,9 +106,8 @@ pipeline {
       stage('Setup Ansible vars'){
          steps {
               sh '''
-                cd "./terraform"
-                echo "host_pgadmin_ip: $(terraform output -json instance_ips | jq -r '.[1]')" >> /var/jenkins_home/workspace/ic-webapp_$BRANCH_NAME/ansible/roles/ic-webapp/defaults/main.yml
-                echo "host_odoo_ip: $(terraform output -json instance_ips | jq -r '.[0]')" >> /var/jenkins_home/workspace/ic-webapp_$BRANCH_NAME/ansible/roles/ic-webapp/defaults/main.yml
+                echo "host_pgadmin_ip: $(terraform output -json instance_ips | jq -r '.[1]')" >> ansible/roles/ic-webapp/defaults/main.yml
+                echo "host_odoo_ip: $(terraform output -json instance_ips | jq -r '.[0]')" >> ansible/roles/ic-webapp/defaults/main.yml
                 cat ansible/roles/ic-webapp/defaults/main.yml
             '''
         }
