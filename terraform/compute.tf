@@ -30,9 +30,9 @@ resource "aws_instance" "ec2" {
 
 resource "local_file" "ansible_inventory" {
   content = templatefile("inventory.tftpl", {
-    odoo_ipv4  = "${aws_instance.ec2[1].public_ip}"
-    ic_webapp_server_ipv4 ="${aws_instance.ec2[2].public_ip}"
-    pg_admin_server_ipv4 ="${aws_instance.ec2[2].public_ip}"
+    odoo_ipv4  = "${aws_instance.ec2[0].public_ip}"
+    ic_webapp_server_ipv4 ="${aws_instance.ec2[1].public_ip}"
+    pg_admin_server_ipv4 ="${aws_instance.ec2[1].public_ip}"
   })
   filename = "../ansible/inventory"
 }
