@@ -14,6 +14,9 @@ pipeline {
     TF_IN_AUTOMATION = 'true'
     AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+
+    ANSIBLE_HOST_KEY_CHECKING="False"       
+    PRIVATE_AWS_KEY = credentials('private-key')
   }
   agent any
   stages {
@@ -111,48 +114,55 @@ pipeline {
         }
       }
 
-    stage ("Ansible - Ping target hosts") {
-        environment {    
-          ANSIBLE_HOST_KEY_CHECKING="False"       
-          PRIVATE_AWS_KEY = credentials('private-key')
+      stage ("Ansible - Ping target hosts") {
+          steps {
+              script {
+                  sh '''
+                      cd "./ansible"
+                      ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
+                  '''
+              }
+          }
         }
-        steps {
-            script {
-                sh '''
-                    cd "./ansible"
-                    ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
-                '''
-            }
-        }
+
+      stage ("Ansible - Install Docker ") {
+          steps {
+              script {
+                  sh '''
+                      cd "./ansible"
+                      ansible-playbook install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
+                  '''
+              }
+          }
       }
       
-      stage('Validate Destroy') {
-        input {
-          message "Do you want to destroy?"
-          ok "Destroy"
-        }
-        steps {
-          echo 'Destroy Approved'
-        }
+    stage('Validate Destroy') {
+      input {
+        message "Do you want to destroy?"
+        ok "Destroy"
       }
+      steps {
+        echo 'Destroy Approved'
+      }
+    }
 
-      stage('Destroy'){
-        steps {
-            script {
-              dir("terraform") {
-                sh 'pwd'
-                sh 'ls'
-              if (env.BRANCH_NAME == 'dev') {
-                  sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
-              } else if (env.BRANCH_NAME == 'master'){
-                  sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
-              } else {
-                    echo 'no env found'
-              }
-              }      
+    stage('Destroy'){
+      steps {
+          script {
+            dir("terraform") {
+              sh 'pwd'
+              sh 'ls'
+            if (env.BRANCH_NAME == 'dev') {
+                sh 'terraform destroy -auto-approve  -no-color -var-file="dev.tfvars"'
+            } else if (env.BRANCH_NAME == 'master'){
+                sh 'terraform destroy -auto-approve  -no-color -var-file="prod.tfvars"'
+            } else {
+                  echo 'no env found'
             }
-        }
+            }      
+          }
       }
+    }
     
   }
 }
