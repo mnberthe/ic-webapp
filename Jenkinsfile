@@ -105,20 +105,20 @@ pipeline {
         }
       }
 
+      stage('Setup Ansible vars'){
+         steps {
+            sh '''printf \\
+                "\\n$(terraform output -json instance_ips | jq -r \'.[]\')" \\
+               >>  ansible/roles/ic-webapp/defaults/main.yml'''
+        }
+      }
+
       stage('Ec2 wait'){
         steps {
             sh '''aws ec2 wait instance-status-ok \\
               --instance-ids $(terraform output -json instance_ids | jq -r \'.[]\') \\
               --region eu-west-3
               '''
-        }
-      }
-
-      stage('Setup Ansible vars'){
-         steps {
-            sh '''printf \\
-                "\\n$(terraform output -json instance_ips | jq -r \'.[]\')" \\
-               >>  ansible/roles/ic-webapp/defaults/main.yml'''
         }
       }
 
