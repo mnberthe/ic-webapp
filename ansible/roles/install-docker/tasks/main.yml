@@ -1,0 +1,40 @@
+---
+# tasks file for install-docker
+- name: Install Docker
+  hosts: all
+  become: yes
+  tasks: 
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "ca-certificates" 
+        - "curl"
+        - "gnupg"
+
+    - name:  Add an apt signing key for Docker
+      ansible.builtin.apt_key:
+        url:  https://download.docker.com/linux/ubuntu/gpg
+        dest:  /etc/apt/keyrings/docker.gpg
+        state: present
+    
+    - name: Add docker to repository
+      ansible.builtin.apt_repository: 
+        repo: deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+        dest : /etc/apt/sources.list.d/docker.list
+        state: present
+    
+    - name : install docker
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - "docker-ce"
+        - "docker-ce-cli"
+        - "containerd.io"
