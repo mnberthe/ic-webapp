@@ -1,5 +1,5 @@
 ---
-- hosts: pg_admin
+- hosts: ic_webapp
   become: yes
   gather_facts: yes
   roles:
