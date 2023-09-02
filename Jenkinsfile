@@ -142,7 +142,7 @@ pipeline {
               script {
                   sh '''
                       cd "./ansible"
-                      ansible-playbook -i inventory playbooks/deploy-pgadmin  --private-key  $PRIVATE_AWS_KEY 
+                      ansible-playbook -i inventory playbooks/deploy-pgadmin.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
