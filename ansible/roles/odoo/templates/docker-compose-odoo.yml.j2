@@ -3,7 +3,7 @@ services:
     {{ postgres_service_name }}:
         environment:
             - POSTGRES_USER=odoo_user
-            - POSTGRES_PASSWORD=odoo_password
+            - POSTGRES_PASSWORD=password
             - POSTGRES_DB=postgres
         networks:
             - {{ odoo_network }}
