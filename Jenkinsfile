@@ -156,7 +156,6 @@ pipeline {
           steps {
               script {
                   sh '''
-                      cd "./ansible"
                       ansible-playbook -i ansible/inventory ansible/playbooks/deploy-icwebapp.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
