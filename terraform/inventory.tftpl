@@ -1,7 +1,8 @@
 [odoo]
-odoo_server ansible_host=${odoo_ipv4}
+odoo_server ansible_host=${odoo_ipv4}  ansible_user=ubuntu
+
 [ic_webapp]
-ic_webapp_server ansible_host=${ic_webapp_server_ipv4}
+ic_webapp_server ansible_host=${ic_webapp_server_ipv4}  ansible_user=ubuntu
 
 [pg_admin]
-pg_admin_server ansible_host=${pg_admin_server_ipv4}
+pg_admin_server ansible_host=${pg_admin_server_ipv4}   ansible_user=ubuntu
