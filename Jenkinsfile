@@ -119,7 +119,7 @@ pipeline {
             script {
                 sh '''
                     cd "./ansible"
-                    ansible all -m ping  --private-key  $PRIVATE_AWS_KEY 
+                    ansible -i inventory -m ping all --private-key  $PRIVATE_AWS_KEY 
                 '''
             }
         }
