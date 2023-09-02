@@ -131,7 +131,7 @@ pipeline {
                   sh '''
                       cd "./ansible"
                       ls 
-                      ansible-playbook playbooks/install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
+                      ansible-playbook -i inventory playbooks/install-docker.yml  --private-key  $PRIVATE_AWS_KEY 
                   '''
               }
           }
