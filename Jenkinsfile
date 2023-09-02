@@ -117,9 +117,12 @@ pipeline {
       stage('Setup Ansible vars'){
          steps {
             sh '''
-              data: $(terraform output -json instance_ips | jq -r \'.[1]\') 
-              host_pgadmin_ip : $(terraform output -json instance_ips | jq -r \'.[1]\') >> ansible/roles/ic-webapp/defaults/main.yml
-              host_odoo_ip : $(terraform output -json instance_ips | jq -r \'.[0]') >> ansible/roles/ic-webapp/defaults/main.yml
+            printf \\
+              "\\nhost_pgadmin_ip : $(terraform output -json instance_ips | jq -r \'.[1]\')" \\
+              >> ansible/roles/ic-webapp/defaults/main.yml
+            printf \\
+              "\\nhost_odoo_ip : $(terraform output -json instance_ips | jq -r \'.[0]\')" \\ 
+                >> ansible/roles/ic-webapp/defaults/main.yml
               '''
         }
       }
